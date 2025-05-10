@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+tensorflow
+keras
+ccxt
+pycoingecko
+python-dotenv
+taccxt 
