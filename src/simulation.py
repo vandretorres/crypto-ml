@@ -99,8 +99,11 @@ def simulate_purchase(investment: float):
 def evaluate_simulation(sim_file: str):
     """
     Lê CSV de simulação e calcula lucro/prejuízo atual.
-    Salva em purchase_YYYY-MM-DD_eval.csv
+    Salva em *_eval.csv, exibe resultado tabular e um resumo final.
     """
+    import locale
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
     if not os.path.exists(sim_file):
         print(f"Arquivo de simulação não encontrado: {sim_file}")
         return
@@ -137,8 +140,32 @@ def evaluate_simulation(sim_file: str):
     df_eval = pd.DataFrame(eval_records)
     out_file = sim_file.replace('.csv', '_eval.csv')
     df_eval.to_csv(out_file, index=False)
-    print(f"Avaliação salva em: {out_file}")
-    print(df_eval[['symbol', 'total_cost', 'current_value', 'profit', 'profit_pct']])
+    print(f"[✅] Avaliação salva em: {out_file}")
+
+    # Formatação para exibição
+    df_fmt = df_eval[['symbol', 'quantity', 'price', 'total_cost', 'current_value', 'profit', 'profit_pct']].copy()
+    df_fmt['quantity'] = df_fmt['quantity'].apply(lambda x: f"{x:.8f}")
+    df_fmt['price'] = df_fmt['price'].apply(lambda x: f"${x:,.4f}")
+    df_fmt['total_cost'] = df_fmt['total_cost'].apply(lambda x: locale.currency(x, grouping=True))
+    df_fmt['current_value'] = df_fmt['current_value'].apply(lambda x: locale.currency(x, grouping=True))
+    df_fmt['profit'] = df_fmt['profit'].apply(lambda x: locale.currency(x, grouping=True))
+    df_fmt['profit_pct'] = df_fmt['profit_pct'].apply(lambda x: f"{x:.2%}")
+
+    # Exibe tabela
+    print("\n📊 Resultado da Avaliação:\n")
+    print(df_fmt.to_string(index=False))
+
+    # Sumário
+    total_investido = df_eval['total_cost'].sum()
+    total_valor = df_eval['current_value'].sum()
+    total_lucro = total_valor - total_investido
+    total_pct = (total_lucro / total_investido) if total_investido else 0.0
+
+    print("\n📈 Resumo Final:")
+    print(f"➡️  Total Investido: {locale.currency(total_investido, grouping=True)}")
+    print(f"💰 Lucro/Prejuízo:  {locale.currency(total_lucro, grouping=True)}")
+    print(f"📊 Variação (%):    {total_pct:.2%}")
+    
 
 def main():
     parser = argparse.ArgumentParser(description="Simulação e avaliação de sinais de compra")
