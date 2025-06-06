@@ -7,5 +7,5 @@ python -m venv venv # criar ambiente virtual
 
 
 python -m src.simulation --simulate --investment 10000
-python -m src.simulation --evaluate data/simulations/purchase_2025-05-25.csv
+python -m src.simulation --evaluate data/simulations/purchase_2025-06-02.csv
 python src/validate_prices.py --file data/simulations/purchase_2025-06-02_eval.csv
